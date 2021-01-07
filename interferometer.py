@@ -29,7 +29,7 @@ def make_baselines(declination, hour_angles, positions):
 
     for ha in hour_angles:
         UVW = convert_XYZ_to_UVW(positions, declination, ha)
-        no_of_baselines = len(UVW[0]) ** 2 - len(UVW[0])
+        no_of_baselines = len(UVW[0]) * (len(UVW[0]) - 1)
         baselines = np.array([[0.] * no_of_baselines] * 3)
 
         index = 0
@@ -46,6 +46,8 @@ def make_baselines(declination, hour_angles, positions):
         full_baseline[1].extend(baselines[1])
         full_baseline[2].extend(baselines[2])
     return np.array(full_baseline)
+
+
 
 
 def roundup(x, val):
