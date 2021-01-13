@@ -1,41 +1,22 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def delta_func_img(coords, fluxes, extent, zero_pos = 'centre'):
-    if 'centre' in zero_pos:
-        y_adjust = int(extent[0] / 2)
-        x_adjust = int(extent[1] / 2)
-    if 'bottom' in zero_pos:
-        y_adjust = extent[0]-1
-    elif 'top' in zero_pos:
-        y_adjust = 0
-    if 'right' in zero_pos:
-        x_adjust = extent[1]-1
-    elif 'left' in zero_pos:
-        x_adjust = 0
-    # print(y_adjust, x_adjust)
+def delta_func_img(coords, fluxes, extent, resolution):
+    img = np.zeros([int((extent[3]-extent[2]) / resolution),
+                    int((extent[1]-extent[0]) / resolution)])
 
-    img = np.zeros(extent)
-    # increasing from top right
     for i in range(len(fluxes)):
-        adjusted_coords = [coords[i][1]+y_adjust, coords[i][0]+x_adjust]
-        print(adjusted_coords)
+
+        adjusted_coords = [int((extent[2] - coords[i][1]) / resolution),
+                           int((extent[0] - coords[i][0]) / resolution)]
+#         print(adjusted_coords)
         try:
             img[adjusted_coords[0], adjusted_coords[1]] = fluxes[i]
         except IndexError:
             pass
 
-    return img
+    return img, resolution
 
-
-def true_image():
-    star_coords = [[0, 0], [10, 180]]
-    star_fluxes = [3.6, 5.8]
-    extent = [2000, 2200]
-
-    image = delta_func_img(star_coords, star_fluxes, extent, 'centre')
-
-    return image
 
 
 
@@ -51,10 +32,13 @@ if __name__ == '__main__':
     star_coords = [[0, 0], [10, 180]]
     star_fluxes = [3.6, 5.8]
 
-    extent = [400, 400]
+    extent = [-600, 600, -600, 600] # test FOV in arcseconds
+    resolution = .1
 
-    image = delta_func_img(star_coords, star_fluxes, extent, 'centre')
-    plt.imshow(image)
+    image, resolution = delta_func_img(star_coords, star_fluxes, extent, resolution, 'top left')
+    extent_x = len(image[0])/2 * resolution
+    extent_y = len(image)/2 * resolution
+    plt.imshow(image, interpolation='gaussian', extent=[-extent_x, +extent_x, -extent_y, +extent_y])
     plt.title('original image')
     plt.colorbar()
     plt.show()
